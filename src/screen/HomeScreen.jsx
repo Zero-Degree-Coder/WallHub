@@ -1,11 +1,19 @@
-import { StyleSheet, Text, View } from "react-native";
+import { FlatList, StyleSheet, Text, View } from "react-native";
 import React from "react";
 import Header from "../components/Header";
-
+import ImageCard from "../components/ImageCard";
+import data from "../data/images.json";
 const HomeScreen = () => {
   return (
     <View style={styles.container}>
       <Header />
+      <FlatList
+        data={data}
+        renderItem={({ item, index }) => (
+          <ImageCard item={item} index={index} />
+        )}
+        numColumns={2}
+      />
     </View>
   );
 };
