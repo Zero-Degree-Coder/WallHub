@@ -9,6 +9,7 @@ import FontAwesome5 from "react-native-vector-icons/FontAwesome5";
 
 import HomeScreen from "./src/screen/HomeScreen";
 import LinearGradient from "react-native-linear-gradient";
+import HomeStack from "./src/naivgation/MyStackNavigation";
 
 const Tab = createBottomTabNavigator();
 const App = () => {
@@ -44,8 +45,8 @@ const App = () => {
         }}
       >
         <Tab.Screen
-          name="HOME_SCREEN"
-          component={HomeScreen}
+          name="HOME_STACK"
+          component={HomeStack}
           options={{
             tabBarIcon: ({ color, focused, size }) => {
               return (
