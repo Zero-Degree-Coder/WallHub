@@ -12,12 +12,38 @@ import Ionicons from "react-native-vector-icons/Ionicons";
 import AntDesign from "react-native-vector-icons/AntDesign";
 import Feather from "react-native-vector-icons/Feather";
 import FontAwesome from "react-native-vector-icons/FontAwesome";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 const ShowWallpaperScreen = () => {
   const navigation = useNavigation();
   const route = useRoute();
   const item = route.params.item;
   const handleBackPress = () => {
     navigation.goBack();
+  };
+  const handleLikeWallpaper = async (item) => {
+    let likedWallpapers = await AsyncStorage.getItem("images");
+    likedWallpapers = likedWallpapers ? JSON.parse(likedWallpapers) : [];
+    let isExist = likedWallpapers.findIndex((image) => image.id === item.id);
+    if (isExist < 0) {
+      likedWallpapers = [item, ...likedWallpapers];
+      await AsyncStorage.setItem("images", JSON.stringify(likedWallpapers));
+      Alert.alert(
+        "Added to Favorites",
+        "Your wallpaper has been successfully added to your faviorates.",
+        [
+          {
+            text: "Dismiss",
+            style: "cancel",
+          },
+          {
+            text: "View Favorites",
+            onPress: () => {
+              navigation.navigate("LIKE_STACK");
+            },
+          },
+        ]
+      );
+    }
   };
   return (
     <>
@@ -35,7 +61,11 @@ const ShowWallpaperScreen = () => {
           <Ionicons name={"chevron-back"} color={"white"} size={30} />
         </TouchableOpacity>
         <View style={styles.iconContainer}>
-          <TouchableOpacity onPress={() => {}}>
+          <TouchableOpacity
+            onPress={() => {
+              handleLikeWallpaper(item);
+            }}
+          >
             <AntDesign name={"hearto"} size={30} color="white" />
           </TouchableOpacity>
           <TouchableOpacity>

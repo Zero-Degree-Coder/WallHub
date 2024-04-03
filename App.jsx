@@ -9,7 +9,15 @@ import FontAwesome5 from "react-native-vector-icons/FontAwesome5";
 
 import HomeScreen from "./src/screen/HomeScreen";
 import LinearGradient from "react-native-linear-gradient";
-import HomeStack from "./src/naivgation/MyStackNavigation";
+import {
+  CollectionStack,
+  HomeStack,
+  LikeStack,
+  SearchStack,
+} from "./src/naivgation/MyStackNavigation";
+import CollectionScreen from "./src/screen/CollectionScreen";
+import SearchScreen from "./src/screen/SearchScreen";
+import LikeScreen from "./src/screen/LikeScreen";
 
 const Tab = createBottomTabNavigator();
 const App = () => {
@@ -60,8 +68,8 @@ const App = () => {
           }}
         />
         <Tab.Screen
-          name="COLLECTION_SCREEN"
-          component={HomeScreen}
+          name="COLLECTION_STACK"
+          component={CollectionStack}
           options={{
             tabBarIcon: ({ color, focused, size }) => {
               return (
@@ -75,8 +83,8 @@ const App = () => {
           }}
         />
         <Tab.Screen
-          name="SEARCH_SCREEN"
-          component={HomeScreen}
+          name="SEARCH_STACK"
+          component={SearchStack}
           options={{
             tabBarIcon: ({ color, focused, size }) => {
               return (
@@ -90,8 +98,8 @@ const App = () => {
           }}
         />
         <Tab.Screen
-          name="LIKE_SCREEN"
-          component={HomeScreen}
+          name="LIKE_STACK"
+          component={LikeStack}
           options={{
             tabBarIcon: ({ color, focused, size }) => {
               return (

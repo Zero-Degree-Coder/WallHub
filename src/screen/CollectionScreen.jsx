@@ -1,18 +1,20 @@
 import { FlatList, StyleSheet, Text, View } from "react-native";
 import React from "react";
 import Header from "../components/Header";
+import CategoryCard from "../components/CategoryCard";
+import data from "../data/category.json";
 import ImageCard from "../components/ImageCard";
-import data from "../data/images.json";
-const HomeScreen = () => {
+
+const CollectionScreen = () => {
   return (
     <View style={styles.container}>
       <Header />
+      <Text style={styles.heading}>Collections</Text>
       <FlatList
         data={data}
         renderItem={({ item, index }) => (
-          <ImageCard item={item} index={index} />
+          <CategoryCard item={item} index={index} />
         )}
-        numColumns={2}
         contentContainerStyle={{
           paddingBottom: 300,
         }}
@@ -21,12 +23,16 @@ const HomeScreen = () => {
   );
 };
 
-export default HomeScreen;
+export default CollectionScreen;
 
 const styles = StyleSheet.create({
   container: {
     backgroundColor: "#121928",
-    flex: 1,
     paddingHorizontal: 20,
+  },
+  heading: {
+    color: "white",
+    fontSize: 30,
+    fontWeight: "700",
   },
 });
