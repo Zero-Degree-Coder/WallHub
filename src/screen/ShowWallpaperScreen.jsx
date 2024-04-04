@@ -1,4 +1,5 @@
 import {
+  ActivityIndicator,
   ImageBackground,
   StatusBar,
   StyleSheet,
@@ -13,7 +14,10 @@ import AntDesign from "react-native-vector-icons/AntDesign";
 import Feather from "react-native-vector-icons/Feather";
 import FontAwesome from "react-native-vector-icons/FontAwesome";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useDownloadFile } from "../hooks/useDownloadFile";
 const ShowWallpaperScreen = () => {
+  const { downloadFile, percentage, downloading } = useDownloadFile();
+  console.log('downloadFile: ', downloadFile);
   const navigation = useNavigation();
   const route = useRoute();
   const item = route.params.item;
@@ -45,6 +49,9 @@ const ShowWallpaperScreen = () => {
       );
     }
   };
+  const handleDownload = async () => {
+    await downloadFile(item.image, item.name);
+  };
   return (
     <>
       <StatusBar hidden />
@@ -68,13 +75,35 @@ const ShowWallpaperScreen = () => {
           >
             <AntDesign name={"hearto"} size={30} color="white" />
           </TouchableOpacity>
-          <TouchableOpacity>
+          <TouchableOpacity onPress={() => handleDownload(item)}>
             <Feather name={"download"} size={30} color="white" />
           </TouchableOpacity>
           <TouchableOpacity>
             <FontAwesome name={"share"} size={30} color="white" />
           </TouchableOpacity>
         </View>
+        {downloading ? (
+          <>
+            <View
+              style={{
+                justifyContent: "center",
+                alignItems: "center",
+                flex: 1,
+                ...StyleSheet.absoluteFillObject,
+                backgroundColor: "rgba(0,0,0,0.5)",
+              }}
+            >
+              <ActivityIndicator color={"white"} size={"50"} />
+              <Text
+                style={{
+                  color: "white",
+                }}
+              >
+                Progress Percentage {percentage}%
+              </Text>
+            </View>
+          </>
+        ) : null}
       </ImageBackground>
     </>
   );

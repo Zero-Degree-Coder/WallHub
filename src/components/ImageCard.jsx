@@ -1,4 +1,5 @@
 import {
+  ActivityIndicator,
   Alert,
   Image,
   StyleSheet,
@@ -11,9 +12,11 @@ import AntDesign from "react-native-vector-icons/AntDesign";
 import Feather from "react-native-vector-icons/Feather";
 import { useNavigation } from "@react-navigation/native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useDownloadFile } from "../hooks/useDownloadFile";
 const imageUrl =
   "https://wallpapers.com/images/high/dark-trippy-rick-and-morty-05m8eqaoeolmuswo.webp";
 const ImageCard = ({ item }) => {
+  const { downloadFile, downloading, percentage } = useDownloadFile();
   const navigation = useNavigation();
 
   const handleNavigate = () => {
@@ -43,7 +46,28 @@ const ImageCard = ({ item }) => {
           },
         ]
       );
+    } else {
+      Alert.alert(
+        "Added to Favorites",
+        "Your wallpaper has been successfully added to your faviorates.",
+        [
+          {
+            text: "Dismiss",
+            style: "cancel",
+          },
+          {
+            text: "View Favorites",
+            onPress: () => {
+              navigation.navigate("LIKE_STACK");
+            },
+          },
+        ]
+      );
     }
+  };
+
+  const handleDownloadFile = async (item) => {
+    await downloadFile(item.image, item.name);
   };
   return (
     <TouchableOpacity
@@ -61,10 +85,36 @@ const ImageCard = ({ item }) => {
         >
           <AntDesign name={"hearto"} size={30} color="white" />
         </TouchableOpacity>
-        <TouchableOpacity>
+        <TouchableOpacity
+          onPress={() => {
+            handleDownloadFile(item);
+          }}
+        >
           <Feather name={"download"} size={30} color="white" />
         </TouchableOpacity>
       </View>
+      {downloading ? (
+        <>
+          <View
+            style={{
+              justifyContent: "center",
+              alignItems: "center",
+              flex: 1,
+              ...StyleSheet.absoluteFillObject,
+              backgroundColor: "rgba(0,0,0,0.5)",
+            }}
+          >
+            <ActivityIndicator color={"white"} size={"large"} />
+            <Text
+              style={{
+                color: "white",
+              }}
+            >
+              Progress Percentage {percentage}%
+            </Text>
+          </View>
+        </>
+      ) : null}
     </TouchableOpacity>
   );
 };
