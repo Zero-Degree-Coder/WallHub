@@ -1,4 +1,5 @@
 import {
+  ActivityIndicator,
   FlatList,
   StyleSheet,
   Text,
@@ -6,12 +7,62 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import EvilIcons from "react-native-vector-icons/EvilIcons";
 import AntDesign from "react-native-vector-icons/AntDesign";
 import data from "../data/images.json";
 import ImageCard from "../components/ImageCard";
+import { api } from "../utils/api";
+import { useDebouncedCallback } from "use-debounce";
 const SearchScreen = () => {
+  // first we render some images when user search
+  const [wallpapers, setWallpapers] = useState([]);
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
+  const [searchValue, setSearchValue] = useState("");
+
+  useEffect(() => {
+    getAllWallpapers();
+  }, [page]);
+
+  const getAllWallpapers = async (searchValue) => {
+    setIsLoading(true);
+    const response = await api.get("/api/wallpapers", {
+      params: {
+        page,
+        searchValue,
+      },
+    });
+    const newWallpapers = response?.data?.wallpapers || [];
+
+    if (newWallpapers.length) {
+      if (page === 1) {
+        setWallpapers(newWallpapers);
+      } else {
+        setWallpapers((prev) => [...prev, ...newWallpapers]);
+      }
+    }
+
+    if (newWallpapers.length < 10) {
+      setHasMore(false);
+    } else {
+      setHasMore(true);
+    }
+    setIsLoading(false);
+  };
+  const fetchMoreWallpapers = () => {
+    if (hasMore) {
+      setPage(page + 1);
+    }
+  };
+
+  const debounced = useDebouncedCallback((value) => {
+    setSearchValue(value);
+    setPage(1);
+    getAllWallpapers(value);
+  }, 500);
+
   return (
     <View style={styles.container}>
       <View style={styles.headerContainer}>
@@ -34,12 +85,15 @@ const SearchScreen = () => {
           style={styles.textInput}
           placeholder="Search here.."
           placeholderTextColor={"#A0A3A9"}
+          onChangeText={(value) => {
+            debounced(value);
+          }}
         />
       </View>
 
       {/* render some data */}
       <FlatList
-        data={data}
+        data={wallpapers}
         renderItem={({ item, index }) => {
           return <ImageCard item={item} index={index} />;
         }}
@@ -47,6 +101,19 @@ const SearchScreen = () => {
         contentContainerStyle={{
           paddingBottom: 400,
         }}
+        onEndReachedThreshold={0.5}
+        onEndReached={fetchMoreWallpapers}
+        ListFooterComponent={
+          isLoading && (
+            <View
+              style={{
+                paddingVertical: 20,
+              }}
+            >
+              <ActivityIndicator size={"large"} color={"white"} />
+            </View>
+          )
+        }
       />
     </View>
   );

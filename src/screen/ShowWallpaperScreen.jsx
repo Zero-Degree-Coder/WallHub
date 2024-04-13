@@ -15,9 +15,12 @@ import Feather from "react-native-vector-icons/Feather";
 import FontAwesome from "react-native-vector-icons/FontAwesome";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useDownloadFile } from "../hooks/useDownloadFile";
+import Share from "react-native-share";
+import ReactNativeBlobUtil from "react-native-blob-util";
+
 const ShowWallpaperScreen = () => {
   const { downloadFile, percentage, downloading } = useDownloadFile();
-  console.log('downloadFile: ', downloadFile);
+  console.log("downloadFile: ", downloadFile);
   const navigation = useNavigation();
   const route = useRoute();
   const item = route.params.item;
@@ -52,6 +55,26 @@ const ShowWallpaperScreen = () => {
   const handleDownload = async () => {
     await downloadFile(item.image, item.name);
   };
+  const handleShareImage = () => {
+    try {
+      ReactNativeBlobUtil.fetch("GET", item.image).then((res) => {
+        let status = res.info().status;
+        if (status === 200) {
+          let base64Str = res.base64();
+          let options = {
+            url: `data:image/jpeg;base64,${base64Str}`,
+          };
+          Share.open(options)
+            .then((r) => {
+              console.log(r);
+            })
+            .catch((e) => {
+              e && console.log(e);
+            });
+        }
+      });
+    } catch (error) {}
+  };
   return (
     <>
       <StatusBar hidden />
@@ -78,7 +101,7 @@ const ShowWallpaperScreen = () => {
           <TouchableOpacity onPress={() => handleDownload(item)}>
             <Feather name={"download"} size={30} color="white" />
           </TouchableOpacity>
-          <TouchableOpacity>
+          <TouchableOpacity onPress={handleShareImage}>
             <FontAwesome name={"share"} size={30} color="white" />
           </TouchableOpacity>
         </View>

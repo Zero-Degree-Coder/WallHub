@@ -5,17 +5,53 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import data from "../data/images.json";
 import ImageCard from "../components/ImageCard";
+import { api } from "../utils/api";
+
 const CollectionDetailsScreen = () => {
+  const [wallpapers, setWallpapers] = useState([]);
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
   const navigation = useNavigation();
   const route = useRoute();
   const item = route.params.item;
+
   const handleBackPress = () => {
     navigation.goBack();
+  };
+  useEffect(() => {
+    if (item?._id) {
+      getAllWallpapers();
+    }
+  }, [page]);
+
+  const getAllWallpapers = async () => {
+    try {
+      const response = await api.get("/api/wallpapers", {
+        params: {
+          categoryId: item._id,
+          page,
+        },
+      });
+      const newWallpapers = response?.data?.wallpapers || [];
+      if (newWallpapers.length) {
+        setWallpapers([...wallpapers, ...newWallpapers]);
+      }
+      if (newWallpapers.length < 10) {
+        setHasMore(false);
+      }
+    } catch (error) {
+      console.log("error: ", error);
+    }
+  };
+  const fetchMoreWallpapers = () => {
+    if (hasMore) {
+      setPage(page + 1);
+    }
   };
   return (
     <View style={styles.container}>
@@ -32,7 +68,7 @@ const CollectionDetailsScreen = () => {
         </Text>
       </View>
       <FlatList
-        data={data}
+        data={wallpapers}
         renderItem={({ item, index }) => (
           <ImageCard item={item} index={index} />
         )}
@@ -40,6 +76,8 @@ const CollectionDetailsScreen = () => {
         contentContainerStyle={{
           paddingBottom: 200,
         }}
+        onEndReachedThreshold={0.5}
+        onEndReached={fetchMoreWallpapers}
       />
     </View>
   );
